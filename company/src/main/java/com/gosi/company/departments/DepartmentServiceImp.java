@@ -28,7 +28,7 @@ class DepartmentServiceImp implements DepartmentService {
   @Override
   public Department getDepartmentById(long id) {
     Optional<DepartmentEntity> departmentEntity = departmentRepo.findById(id);
-    if (departmentEntity.isPresent()) {
+    if (departmentEntity != null && departmentEntity.isPresent()) {
       return new Department(departmentEntity.get());
     }
     return null;
@@ -43,18 +43,21 @@ class DepartmentServiceImp implements DepartmentService {
   }
 
   @Override
-  public Department updateDepartment(Department department) {
+  public Department updateDepartment(Department department) throws DepartmentNotFoundException{
     if (departmentRepo.existsById(department.getId())) {
       DepartmentEntity entity = new DepartmentEntity(department);
       DepartmentEntity updatedEntity = departmentRepo.save(entity);
       return new Department(updatedEntity);
     }
-    return null;
+    throw new DepartmentNotFoundException("Department with id = "+ department.getId() + " not found");
   }
 
   @Override
-  public void deleteDepartment(long id) {
-    departmentRepo.deleteById(id);
+  public void deleteDepartment(long id) throws DepartmentNotFoundException {
+    if (departmentRepo.existsById(id)) {
+      departmentRepo.deleteById(id);
+    }
+    throw new DepartmentNotFoundException("Department with id = "+id + " not found");
   }
 
   @Override
